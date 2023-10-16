@@ -1,0 +1,410 @@
+_id: spc_2d79caf1f69a43b39f474aed53b71634
+type: ApiSpec
+parentId: wrk_48b79142f07c4a8db3096dfbe62aa3aa
+modified: 1697430489403
+created: 1696215965520
+fileName: Subcontract Management
+contents: >-
+  openapi: "3.0.3"
+
+
+  info:  
+    title: OpenAPI specs for Subcontract Management
+    description: This is a sample server for Subcontract Management
+    termsOfService: https://example.com/terms/
+    contact:
+      name: API Support
+      url: https://www.example.com/support
+      email: support@example.com
+    license:
+      name: Apache 2.0
+      url: https://www.apache.org/licenses/LICENSE-2.0.html
+    version: 1.0.0  
+
+  tags:
+    - name: Subcontract Management
+      description: Subcontract Management
+    - name: Subcontract Settings
+      description: Subcontract Settings
+    - name: Subcontract Claim
+      description: Subcontract Claim
+    - name: Subcontract Claim Setting
+      description: Subcontract Claim Setting
+    - name: Subcontractors
+      description: Subcontractors
+    - name: Subcontractors2
+      description: Subcontractors2
+
+      
+  servers:
+    - url: 'http://localhost:8001/api/v1'
+      description: Local Server
+    - url: 'http://localhost/api/v1'
+      description: Local Server Nginx
+    - url: 'https://api-dev.varicontest.com.au/api/v1'
+      description: Development Server 
+
+   
+
+   
+  components:
+    schemas:
+      LineItem:
+          type: object
+          properties:
+            ref:
+              type: string
+              maxLength: 512
+            description:
+              type: string
+              maxLength: 512
+            unit:
+              type: string
+              maxLength: 512
+            qty:
+              type: number
+              format: float
+            rate:
+              type: number
+              format: float
+            total_sum:
+              type: number
+              format: float
+            note:
+              type: string
+              maxLength: 512
+            line_items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LineItem'
+                
+      ContractWork:
+        type: object
+        properties:
+          section_title:
+            type: string
+            maxLength: 512
+            example: "Sdfdsf"
+          resource_code:
+            type: integer
+          line_items:
+            type: array
+            items:
+              $ref: '#/components/schemas/LineItem'
+          contract_type:
+            type: string
+      
+      VariationWork:
+        type: object
+        properties:
+          variation_link:
+            type: integer
+          line_items:
+            type: array
+            items:
+              $ref: '#/components/schemas/LineItem'         
+      
+      AdditionalSetting:
+        type: object
+        properties:
+          first_claim_sequence_number:
+            type: integer
+          country:
+            type: integer
+          state:
+            type: integer
+
+      SubcontractVariationSetting:
+        type: object
+        properties:
+          variation_retention_basis_type:
+            type: integer
+          variation_max_retention:
+            type: number
+            format: float
+          variation_retention_rate:
+            type: number
+            format: float
+          enable_manual_retention_variation:
+            type: boolean
+      
+      SubcontractRetentionSetting:
+        type: object
+        properties:
+          retention_basis_type:
+            type: integer
+          max_retention:
+            type: number
+            format: float
+          retention_rate:
+            type: number
+            format: float
+          enable_manual_retention_contract:
+            type: boolean 
+            
+      RetentionSetting:
+        type: object
+        properties:
+          retention:
+            $ref: '#/components/schemas/SubcontractRetentionSetting'
+          variation:
+            $ref: '#/components/schemas/SubcontractVariationSetting'
+
+      ContractDates:
+        type: object
+        properties:
+          date_created:
+            type: string
+            format: date
+          proposed_commencement:
+            type: string
+            format: date
+          proposed_completion:
+            type: string
+            format: date
+          defect_liability_period:
+            type: integer
+          practical_completion_date:
+            type: string
+            format: date
+          contract_reference:
+            type: string
+
+      Subcontract:
+        type: object
+        properties:
+          contract_number:
+            type: string
+            maxLength: 256
+            example: "CID-001"
+          title:
+            type: string
+            maxLength: 256
+            example: "Road Construction Project"
+          counterpart_company:
+            type: integer
+          company_representative:
+            type: integer
+          description:
+            type: string
+            maxLength: 1024
+          inclusions:
+            type: string
+            maxLength: 1024
+          exclusions:
+            type: string
+            maxLength: 1024
+          contract_dates:
+            $ref: '#/components/schemas/ContractDates'
+          retention_setting:
+            $ref: '#/components/schemas/RetentionSetting'
+          additional_setting:
+            $ref: '#/components/schemas/AdditionalSetting'
+          contract_works:
+            type: array
+            items:
+              $ref: '#/components/schemas/ContractWork'
+          variation_works:
+            type: array
+            items:
+              $ref: '#/components/schemas/VariationWork'
+              
+    securitySchemes:
+      ApiKeyAuth:
+        type: apiKey
+        in: header
+        name: Authorization
+
+
+    
+
+  paths:
+      /subcontracts:
+        get:
+          summary: List all subcontracts
+          description:  List all subcontracts
+          operationId: listAll
+          tags:
+          - Subcontract Management
+          parameters:
+          - name: project
+            in: query
+            description: Filter subcontracts by project
+            schema:
+              type: integer
+            example: 1001
+          responses:
+            '200':
+              description: Success
+              content:
+                application/json:
+                  example:
+                    links:
+                      next: ""
+                      previous: null
+                    current_page: 1
+                    total: 19
+                    per_page: 5
+                    total_pages: 4
+                    data:
+                      stats:
+                        completion_percent: 40.12
+                        total_contract_value: 500000.0
+                        total_variations: 75000.0
+                        retention: 200.0
+                        contracts: 6
+                        pending_claims: 2
+                        draft_claim: 1
+                      
+                      subcontract_list:
+                      - id: 1
+                        contract_number: "CID-001"
+                        title: "Road Construction Project"
+                        counterpart_company: 
+                          id: 1
+                          name: "ABC Construction Company"
+                        total_works: 1000.0
+                        approved: 1000.0
+                        number_of_claims: 4
+                        note: "This project involves the construction of a new road."
+                        is_draft: false
+                        created_at: "2023-05-08T07:25:49.238857Z"
+                        updated_at: "2023-06-26T02:45:15.269203Z"
+                      - id: 2
+                        contract_number: "CID-002"
+                        title: "Bridge Renovation"
+                        counterpart_company: 
+                          id: 2
+                          name: "XYZ Builders"
+                        total_works: 1500.0
+                        approved: 1500.0
+                        number_of_claims: 3
+                        note: "Renovation of an old bridge for enhanced safety."
+                        is_draft: false
+                        created_at: "2023-05-09T08:30:30.451982Z"
+                        updated_at: "2023-06-27T03:50:18.621405Z"
+                      - id: 3
+                        contract_number: "CID-003"
+                        title: "High-rise Building Construction"
+                        counterpart_company: 
+                          id: 3
+                          name: "BuildIt Renovations"
+                        total_works: 3000.0
+                        approved: 3000.0
+                        number_of_claims: 6
+                        note: "Construction of a modern high-rise building."
+                        is_draft: false
+                        created_at: "2023-05-10T09:35:20.572016Z"
+                        updated_at: "2023-06-28T04:55:25.783507Z"
+                      - id: 4
+                        contract_number: "CID-004"
+                        title: "Residential Housing Development"
+                        counterpart_company: 
+                          id: 4
+                          name: "RoadMasters Ltd."
+                        total_works: 2500.0
+                        approved: 2500.0
+                        number_of_claims: 5
+                        note: "Development of a new residential housing complex."
+                        is_draft: true
+                        created_at: "2023-05-11T10:40:40.693728Z"
+                        updated_at: "2023-06-29T06:05:30.924661Z"
+            '400':
+              description: Bad Request
+            '500':
+              description: Internal Server Error
+              
+        post:
+          summary: Create a new subcontract
+          description:  Create a new subcontract
+          operationId: create
+          tags:
+          - Subcontract Management
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Subcontract'
+          responses:
+            '201':
+              description: Subcontract created successfully
+            '400':
+              description: Bad Request
+            '500':
+              description: Internal Server Error
+
+      /subcontracts/{subcontract_id}:
+        get:
+          summary: Get details of a subcontract by ID
+          description: Get details of a subcontract by ID
+          operationId: getAll
+          tags:
+          - Subcontract Management
+          parameters:
+            - name: subcontract_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                format: int64
+          responses:
+            '200':
+              description: Successful operation
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Subcontract'
+            '404':
+              description: Subcontract not found
+
+      /subcontracts/{subcontract_id}/update:
+        put:
+          summary: Update details of a subcontract by ID
+          description:  Update details of a subcontract by ID
+          operationId: update
+          tags:
+          - Subcontract Management
+          parameters:
+            - name: subcontract_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                format: int64
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Subcontract'
+          responses:
+            '200':
+              description: Successful operation
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Subcontract'
+            '404':
+              description: Subcontract not found
+
+      /subcontracts/{subcontract_id}/delete:
+        delete:
+          summary: Delete a subcontract by ID
+          description:  Delete a subcontract by ID  
+          operationId: delete
+          tags:
+          - Subcontract Management
+          parameters:
+            - name: subcontract_id
+              in: path
+              required: true
+              schema:
+                type: integer
+                format: int64
+          responses:
+            '204':
+              description: Subcontract deleted successfully
+            '404':
+              description: Subcontract not found
+contentType: yaml
